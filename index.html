@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Screen Webpage UI with Dropdowns</title>
+    <style>
+        /* Full-screen layout */
+        html, body {
+            height: 100%;
+            margin: 1px;
+            padding: 1px;
+            font-family: Arial, sans-serif;
+            background-color: white;
+        }
+
+        /* Header */
+        header {
+            background-color: darkgreen;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header input {
+            padding: 20px;
+            width: 400px;
+            
+        }
+
+        header button {
+            padding: 20px 20px;
+            background-color: lightgreen;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: rgb(64, 179, 121);
+            padding: 10px 20px;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        nav ul li {
+            position: relative;
+        }
+
+        nav ul li button {
+            background: lightgreen;
+            border: none;
+            padding: 1px 10px;
+            cursor: pointer;
+            height: 80px;
+            width: 250px;
+
+        }
+
+        /* Dropdown styling */
+        .dropdown {
+            display: none;
+            background: lightblue;
+            padding: 10px;
+            position: absolute;
+            top: 30px;
+            left: 0;
+            z-index: 1;
+            width: 150px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Show dropdown on hover */
+        nav ul li:hover .dropdown {
+            display: block;
+            
+        }
+
+        /* Smooth transition for dropdown */
+        nav ul li .dropdown {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Main content area */
+        .container {
+            display: flex;
+            height: calc(100% - 140px); /* Subtract header and footer height */
+        }
+
+        /* Sidebar */
+        aside {
+            width: 20%;
+            background-color: lightgreen;
+            padding: 20px;
+
+        }
+
+        aside a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: black;
+        }
+
+        aside .active {
+            background-color: darkgreen;
+            color: white;
+        }
+
+        
+        main {
+            width: 80%;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: darkblue;
+            color: white;
+            padding: 20px;
+            width: calc(33.33% - 20px);
+            box-sizing: border-box;
+        }
+
+        .book {
+            background: orange;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        
+        footer {
+            background: darkblue;
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        footer img {
+            width: 30px;
+            margin: 10px;
+            vertical-align: middle;
+        }
+        .logo{
+            font-size: 60px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            aside {
+                width: 100%;
+                height: auto;
+            }
+
+            main {
+                width: 100%;
+            }
+
+            .card {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            header input {
+                width: 100%;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            .card {
+                width: 100%;
+                margin: 10px;
+            }
+            #searchbar{
+                height: 50px;
+                font-size: 100px;
+            }
+            .subdropdownbutton{
+                background-color: saddlebrown;
+            }
+            .image{
+                height: 100px;
+                width: 15px;
+                background-size: cover;
+                margin-right: 25px;
+            }
+            #sidebutton{
+                background-color: red;
+            }
+            #indian{
+                
+            }
+            #abhinav{
+                padding-bottom: 50px;
+                margin: 50px;
+            }
+            .logo{
+            
+                margin-left: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img
+                src="data:image/png;base64,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"
+                class="logo"
+            />
+        </i></div>
+        <div>
+            <input type="text" placeholder="Search here" id="searchbar">
+            <button>Go</button>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li>
+                <button id="indian">INDIAN</button>
+                <div class="dropdown">
+                    <p class="subdropdownbutton">Traditional Wear</p>
+                    <p class="subdropdownbutton">Modern indian Fusion Wear</p>
+                    <p class="subdropdownbutton">Information of Button1</p>
+                </div>
+            </li>
+            <li>
+                <button>WESTEN</button>
+                <div class="dropdown">
+                    <p class="subdropdownbutton">Casual Wear</p>
+                    <p class="subdropdownbutton"> Formal Wear</p>
+                    <p class="subdropdownbutton">Business Attire</p>
+                    <p class="subdropdownbutton">Sportswear & Activewear</p>
+                </div>
+            </li>
+            <li>
+                <button>CHINEESS</button>
+                <div class="dropdown">
+                    <p class="subdropdownbutton">Traditional Chinese Clothing</p>
+                    <p class="subdropdownbutton">Modern Chinese Clothing</p>
+                </div>
+            </li>
+            <li>
+                <button>JAPANEES</button>
+                <div class="dropdown">
+                    <p class="subdropdownbutton">Traditional Japanese Clothing:</p>
+                    <p class="subdropdownbutton">Modern and Cultural Styles:</p>
+                    <p class="subdropdownbutton">Information of Button 1</p>
+                </div>
+            </li>
+            <li>
+                <button>AMERICAN</button>
+                <div class="dropdown">
+                    <p class="subdropdownbutton">Traditional & Classic American Clothing:</p>
+                    <p class="subdropdownbutton">Formal & Business Wear</p>
+                    <p class="subdropdownbutton">Casual & Everyday Wear:</p>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container" id="abhinav">
+        <aside class="sidebar" style="font-size: 50px;" >
+            <a href="https://www.zara.com/in/en/woman-new-in-l1180.html?v1=2419517&initialBlockId=HOME2_BASIC">ZARA</a>
+            <a href="https://www.adidas.co.in/?cm_mmc=AdieSEM_Google_Search-_-multiple-_--_--_-dv:eCom-_-cn:Performance_IN_adidas_Search_Sales_Prospecting_Brand_B_Exact-1600948552-61284515235-720265849413-_-pc:Google_Search&cm_mmc1=IN&cm_mmc2=PPC-Multiple-Performance_IN_adidas_Search_Sales_Prospecting_Brand_B_Exact-1600948552-61284515235-720265849413-Multiple-Multiple-IN-EMEA-eCom-Paid_Search&gad_source=1&gclid=Cj0KCQiAkoe9BhDYARIsAH85cDO6YdV7pLEvg2m8zdZdU5bjTYK7boC23fShGM9uykqCFP5CwIzmHxoaAoOSEALw_wcB">ADIDAS</a>
+            <a href="https://www2.hm.com/en_in/index.html">H & M</a>
+            <a href="https://levi.in/?utm_source=Affiliate&utm_medium=CPS&utm_campaign=24H2_BR_IN_Stayloose_Dual_Sales_Aug_24_IA4_121_%7Bclick_id%7D&gad_source=1">LEVIS</a>
+            <a href="https://www.nike.com/in/">NIKE</a>
+        </aside>
+
+        <main>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd2%2F46%2Fd24635f01eae03d66612c126a022b1f587a47ee6.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2F16%2Fe0%2F16e0fe77729b87d47bdac154c719d5c21f1e01be.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Faa%2F6e%2Faa6ef6dc3c3ea8fb7501eb04cc757f77222f8251.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card"> 
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fa7%2F3a%2Fa73ac3e930b1f3860f6b749d4727503e3271770f.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd2%2F46%2Fd24635f01eae03d66612c126a022b1f587a47ee6.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2F16%2Fe0%2F16e0fe77729b87d47bdac154c719d5c21f1e01be.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Faa%2F6e%2Faa6ef6dc3c3ea8fb7501eb04cc757f77222f8251.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card"> 
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fa7%2F3a%2Fa73ac3e930b1f3860f6b749d4727503e3271770f.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd2%2F46%2Fd24635f01eae03d66612c126a022b1f587a47ee6.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2F16%2Fe0%2F16e0fe77729b87d47bdac154c719d5c21f1e01be.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Faa%2F6e%2Faa6ef6dc3c3ea8fb7501eb04cc757f77222f8251.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card"> 
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fa7%2F3a%2Fa73ac3e930b1f3860f6b749d4727503e3271770f.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd2%2F46%2Fd24635f01eae03d66612c126a022b1f587a47ee6.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2F16%2Fe0%2F16e0fe77729b87d47bdac154c719d5c21f1e01be.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Faa%2F6e%2Faa6ef6dc3c3ea8fb7501eb04cc757f77222f8251.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card"> 
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fa7%2F3a%2Fa73ac3e930b1f3860f6b749d4727503e3271770f.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd2%2F46%2Fd24635f01eae03d66612c126a022b1f587a47ee6.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2F16%2Fe0%2F16e0fe77729b87d47bdac154c719d5c21f1e01be.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Faa%2F6e%2Faa6ef6dc3c3ea8fb7501eb04cc757f77222f8251.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                /> 
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card"> 
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fa7%2F3a%2Fa73ac3e930b1f3860f6b749d4727503e3271770f.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button></div>
+            <div class="card">
+                <h1>Shirt</h1> 
+                <img 
+                    src="https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2Fd4%2Fc9%2Fd4c9be3ad51ee083c6aefc6f13341be3a664ff0b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5B%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]"
+                    class="image"
+                />
+                <h1>599 /-</h1>
+                <button class="book">Book Now</button>
+            </div>  
+        </main>
+    </div>
+
+    <footer>
+        <a href="#"><img src="https://placehold.co/30x30" alt="LinkedIn"></a>
+        <a href="#"><img src="https://placehold.co/30x30" alt="Instagram"></a>
+        <a href="#"><img src="https://placehold.co/30x30" alt="Facebook"></a>
+    </footer>
+
+</body>
+</html>
